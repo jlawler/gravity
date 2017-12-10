@@ -1,6 +1,6 @@
 class Frame
 	class <<self
-		attr_accessor :width, :height, :window, :width_au, :height_au
+		attr_accessor :width, :height, :window, :width_au, :height_au, :frame
   end
   def self.mag_of_vector x
     tot = 0
@@ -18,7 +18,8 @@ class Frame
     m = mag_of_vector(x)
     x.map{|i|i*1.0/m}
   end
-end 
+end
+Frame.frame = 0
 Frame.height = 480
 Frame.width = 640
 Frame.width_au = 2.66666666

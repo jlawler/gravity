@@ -16,25 +16,8 @@ GravityConf = GravityConfigParser.parse_file  ARGV.first || 'config.yml'
 
 SUN=GravityConf.bodies['sun']
 EARTH=GravityConf.bodies['earth']
-=begin
-SUN = Planetoid.new(
-  mass: 1.989*(10**30),
-  pos: [0,0,0],
-  vel: [0,0,0],
-  radius: 25
-)
 
 
-EARTH=Planetoid.new(
-  mass: 5.972 * (10**24),
-  pos: [0.186, 0.9615,0.000155],
-  vel: [0.5,0,0],
-  radius: 5,
-  color: [0, 0, 255]
-)
-=end
-
-$frame=0
 class ChipmunkIntegration < ( Gosu::Window)
   def initialize
     super Frame.width, Frame.height
@@ -44,21 +27,30 @@ class ChipmunkIntegration < ( Gosu::Window)
     #@img = Gosu::Image.new(self, Circle.new(50, 255, 0, 0), false)
   end
   def draw
-    $frame +=1
-    timescale = 0.5 #0.1 
-    EARTH.add_gravity_from(SUN, timescale)
-    SUN.add_gravity_from(EARTH, timescale)
-    EARTH.update_pos timescale
-    SUN.update_pos timescale
-    STDERR.puts SUN.dist_to EARTH
-    #STDERR.puts "SUN POS #{SUN.pos}"
-    #STDERR.puts "V #{EARTH.vel}"
-    #STDERR.puts "V MAG #{Frame.mag_of_vector(EARTH.vel)}"
+    unless GravityConf.paused
+      Frame.frame += 1
+      timescale = 0.5 #0.1 
+      EARTH.add_gravity_from(SUN, timescale)
+      SUN.add_gravity_from(EARTH, timescale)
+      EARTH.update_pos timescale
+      SUN.update_pos timescale
+      STDERR.puts SUN.dist_to EARTH  if Frame.frame%10 == 0
+      #STDERR.puts "SUN POS #{SUN.pos}"
+      #STDERR.puts "V #{EARTH.vel}"
+      #STDERR.puts "V MAG #{Frame.mag_of_vector(EARTH.vel)}"
+      puts Frame.frame if Frame.frame%10 == 0
+    end
     SUN.draw
     EARTH.draw
-    puts $frame if $frame%10 == 0
 		#draw_circle(0, 0, 200)
     #@img.draw 0, 0, 0
+  end
+  def button_down(id)
+    if id==Gosu::KB_Q
+      Kernel.exit!
+    end
+    puts id
+    GravityConf.paused = !GravityConf.paused  
   end
 end
 

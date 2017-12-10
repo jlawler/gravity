@@ -5,13 +5,13 @@ require 'planetoid'
 
 
 class GravityConfig
-  attr_accessor :bodies, :window_x, :window_y, :au_scale
+  attr_accessor :bodies, :window_x, :window_y, :au_scale, :paused 
 end
 
 class GravityConfigParser
   def self.parse_file(file_name)
     gc = GravityConfig.new
-
+    gc.paused = false
     root = YAML.load(File.read(file_name))
     z = root['bodies'] 
     z.keys.each{|k|
