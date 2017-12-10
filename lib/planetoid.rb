@@ -9,7 +9,7 @@ class Planetoid
     self.color = h[:color] || [255, 0, 0]
   end
   def img
-    @img||= Gosu::Image.new(Frame.window, Circle.new(self.radius, self.color[0], self.color[1], self.color[2]), false)
+    @img||= Gosu::Image.new(Circle.new(self.radius, self.color[0], self.color[1], self.color[2]))
   end
   def dist_to x
     dist_in_au = (0..2).to_a.map do |i|

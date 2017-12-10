@@ -21,12 +21,15 @@ EARTH=GravityConf.bodies['earth']
 class ChipmunkIntegration < ( Gosu::Window)
   def initialize
     super Frame.width, Frame.height
-    self.caption = "Gosu & Chipmunk Integration Demo"
+    @font = Gosu::Font.new(20)
+
+    self.caption = "Jer's Solar System Simulator"
     Frame.window = self
 
     #@img = Gosu::Image.new(self, Circle.new(50, 255, 0, 0), false)
   end
   def draw
+    @font.draw("T: #{Frame.frame}    Z:%2.02f "% Frame.zoom, 10, 10, 1, 1.0, 1.0, 0xff_ffff00)
     unless GravityConf.paused
       Frame.frame += 1
       timescale = 0.5 #0.1 
@@ -34,11 +37,11 @@ class ChipmunkIntegration < ( Gosu::Window)
       SUN.add_gravity_from(EARTH, timescale)
       EARTH.update_pos timescale
       SUN.update_pos timescale
-      STDERR.puts SUN.dist_to EARTH  if Frame.frame%10 == 0
+      #STDERR.puts SUN.dist_to EARTH  if Frame.frame%10 == 0
       #STDERR.puts "SUN POS #{SUN.pos}"
       #STDERR.puts "V #{EARTH.vel}"
       #STDERR.puts "V MAG #{Frame.mag_of_vector(EARTH.vel)}"
-      puts Frame.frame if Frame.frame%10 == 0
+      #puts Frame.frame if Frame.frame%10 == 0
     end
     SUN.draw
     EARTH.draw
@@ -48,9 +51,17 @@ class ChipmunkIntegration < ( Gosu::Window)
   def button_down(id)
     if id==Gosu::KB_Q
       Kernel.exit!
+    elsif id==Gosu::KB_UP
+      Frame.zoom *= 1.1
+      #puts Frame.zoom
+    elsif id==Gosu::KB_DOWN
+      Frame.zoom /= 1.1
+      #puts Frame.zoom
+    elsif id==Gosu::KB_SPACE
+      GravityConf.paused = !GravityConf.paused  
+    else
+      #puts "Unknown key #{id}"
     end
-    puts id
-    GravityConf.paused = !GravityConf.paused  
   end
 end
 
