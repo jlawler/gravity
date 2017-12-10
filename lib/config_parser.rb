@@ -1,14 +1,10 @@
 require 'yaml'
 require 'planetoid'
-
-
+require 'matrix'
 
 
 class GravityConfig
   attr_accessor :bodies, :window_x, :window_y, :au_scale, :paused 
-end
-
-class GravityConfigParser
   def self.parse_file(file_name)
     gc = GravityConfig.new
     gc.paused = false
@@ -25,8 +21,8 @@ class GravityConfigParser
     ret = {}
     ret[:mass] = eval(h['mass'])
     pos_line, vel_line = *h['position'].split(/\n/)
-    ret[:pos] = pos_line.split(/\s+/).map{|i|parse_sci_notation(i)}
-    ret[:vel] = vel_line.split(/\s+/).map{|i|parse_sci_notation(i)}
+    ret[:pos] = Vector[*pos_line.split(/\s+/).map{|i|parse_sci_notation(i)}]
+    ret[:vel] = Vector[*vel_line.split(/\s+/).map{|i|parse_sci_notation(i)}]
     %w(radius color).each{|i|
       ret[i.to_sym] = h[i] if h[i]
     }

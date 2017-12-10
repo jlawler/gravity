@@ -11,7 +11,7 @@ require 'frame'
 require 'planetoid'
 require 'config_parser'
 
-GravityConf = GravityConfigParser.parse_file  ARGV.first || 'config.yml'
+GravityConf = GravityConfig.parse_file  ARGV.first || 'config.yml'
 
 
 SUN=GravityConf.bodies['sun']
@@ -32,7 +32,7 @@ class ChipmunkIntegration < ( Gosu::Window)
     @font.draw("T: #{Frame.frame}    Z:%2.02f "% Frame.zoom, 10, 10, 1, 1.0, 1.0, 0xff_ffff00)
     unless GravityConf.paused
       Frame.frame += 1
-      timescale = 0.5 #0.1 
+      timescale = 10 #0.25 #0.1 
       EARTH.add_gravity_from(SUN, timescale)
       SUN.add_gravity_from(EARTH, timescale)
       EARTH.update_pos timescale
@@ -40,7 +40,7 @@ class ChipmunkIntegration < ( Gosu::Window)
       #STDERR.puts SUN.dist_to EARTH  if Frame.frame%10 == 0
       #STDERR.puts "SUN POS #{SUN.pos}"
       #STDERR.puts "V #{EARTH.vel}"
-      #STDERR.puts "V MAG #{Frame.mag_of_vector(EARTH.vel)}"
+      #STDERR.puts "V MAG #{EARTH.vel.magnitude}"
       #puts Frame.frame if Frame.frame%10 == 0
     end
     SUN.draw
