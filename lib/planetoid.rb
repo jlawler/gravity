@@ -1,12 +1,15 @@
+require 'pp'
 class Planetoid
-  #G = 6.693*(10**-11)
-  attr_accessor :mass, :pos, :vel, :radius, :color
-  def initialize h={}
-    self.mass = h[:mass]
-    self.pos = h[:pos]
-    self.vel = h[:vel]
+  METH = [ :mass, :pos, :vel, :radius, :color, :queued_acc, :name ]
+  attr_accessor :frame, *METH
+  def initialize h={}, frame
+    METH.each{|e| instance_variable_set("@#{e.to_s}".to_sym, h[e])}
+    self.frame = frame
     self.radius = h[:radius]||50
     self.color = h[:color] || [255, 0, 0]
+  end
+  def queued_acc
+    @queued_acc ||= Vector[0.0,0.0,0.0]
   end
   def img
     @img||= Gosu::Image.new(Circle.new(self.radius, self.color[0], self.color[1], self.color[2]))
@@ -14,29 +17,24 @@ class Planetoid
   def dist_to x
     (self.pos - x.pos).magnitude
   end
-  def add_gravity_from(x, timescale)
-
-    force =  timescale * ((self.mass * x.mass) * G_IN_AU_PER_KG_D2)/((self.dist_to(x)**2)*self.mass)
+  def queue_gravity_from( x )
+    force =  self.frame.speed * ((self.mass * x.mass) * Frame::G_IN_AU_PER_KG_D2)/((self.dist_to(x)**2)*self.mass)
     dir = (x.pos - self.pos).normalize
-    self.vel = self.vel + (dir*force)
-
+    self.queued_acc = self.queued_acc + (dir*force)
   end
-  def update_pos(timescale)
-    self.pos = self.pos + (self.vel*timescale)
+  def process_queue
+    self.vel = self.vel + self.queued_acc
+    self.queued_acc = nil 
+  end
+  def update_pos
+    process_queue
+    self.pos = self.pos + (self.vel*frame.speed)
   end
 	def draw
-    x =  
-      (((Frame.width_au*1.0/2) + self.pos[0])*Frame.width / Frame.width_au) - self.radius
-    y = 
-      (((Frame.height_au*1.0/2) + self.pos[1])*Frame.height / Frame.height_au) - self.radius
-
-    self.img.draw(
-      x,
-      y,
-      self.pos[2] ) 
-
+    x =  (((self.frame.width_au*1.0/2) + self.pos[0])*self.frame.width / self.frame.width_au) - self.radius
+    y =  (((self.frame.height_au*1.0/2) + self.pos[1])*self.frame.height / self.frame.height_au) - self.radius
+    self.img.draw( x, y, 0)
   end
-  
 end
 
 

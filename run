@@ -6,67 +6,60 @@ require 'chipmunk'
 
 $:.unshift "./lib"
 require 'gosu_circle'
-require 'constants'
 require 'frame'
 require 'planetoid'
 require 'config_parser'
 
-GravityConf = GravityConfig.parse_file  ARGV.first || 'config.yml'
-
-
-SUN=GravityConf.bodies['sun']
-EARTH=GravityConf.bodies['earth']
-
-
 class ChipmunkIntegration < ( Gosu::Window)
-  def initialize
-    super Frame.width, Frame.height
+  def initialize frame
+    @frame = frame 
+    super @frame.width, @frame.height
     @font = Gosu::Font.new(20)
 
     self.caption = "Jer's Solar System Simulator"
-    Frame.window = self
-
-    #@img = Gosu::Image.new(self, Circle.new(50, 255, 0, 0), false)
+    @frame.window = self
   end
   def draw
-    @font.draw("T: %2.02f  F%04i    Z:%2.02f " % [Frame.time, Frame.frame,  Frame.zoom], 10, 10, 1, 1.0, 1.0, 0xff_ffff00)
+    @font.draw("T: %2.02f  F%04i    Z:%2.02f  Speed: %2.02f" % [@frame.time, @frame.frame,  @frame.zoom, @frame.speed], 10, 10, 1, 1.0, 1.0, 0xff_ffff00)
     unless GravityConf.paused
-      Frame.frame += 1
-      Frame.time += Frame.speed
-      timescale = Frame.speed #0.25 #0.1 
-      EARTH.add_gravity_from(SUN, timescale)
-      SUN.add_gravity_from(EARTH, timescale)
-      EARTH.update_pos timescale
-      SUN.update_pos timescale
-      #STDERR.puts SUN.dist_to EARTH  if Frame.frame%10 == 0
+      @frame.frame += 1
+      @frame.time += @frame.speed
+      GravityConf.bodies.each do |body_a|
+        GravityConf.bodies.each do |body_b|
+          next if body_a.name==body_b.name
+          body_a.queue_gravity_from( body_b)
+        end
+      end
+      GravityConf.bodies.each{|e|e.update_pos }
+      #STDERR.puts SUN.dist_to EARTH  if @frame.frame%10 == 0
       #STDERR.puts "SUN POS #{SUN.pos}"
       #STDERR.puts "V #{EARTH.vel}"
       #STDERR.puts "V MAG #{EARTH.vel.magnitude}"
-      #puts Frame.frame if Frame.frame%10 == 0
+      #puts @frame.frame if @frame.frame%10 == 0
     end
-    SUN.draw
-    EARTH.draw
-		#draw_circle(0, 0, 200)
-    #@img.draw 0, 0, 0
+    GravityConf.bodies.each(&:draw)
   end
   def button_down(id)
     if id==Gosu::KB_Q
       Kernel.exit!
     elsif id==Gosu::KB_UP
-      Frame.zoom *= 1.1
-      #puts Frame.zoom
+      @frame.zoom *= 1.1
+      #puts @frame.zoom
     elsif id==Gosu::KB_DOWN
-      Frame.zoom /= 1.1
-      #puts Frame.zoom
+      @frame.zoom /= 1.1
+      #puts @frame.zoom
     elsif id==Gosu::KB_SPACE
       GravityConf.paused = !GravityConf.paused  
     elsif id==Gosu::KB_MINUS
-      Frame.speed=Frame.speed/1.1
+      @frame.speed=@frame.speed/1.1
     elsif id==Gosu::KB_EQUALS
-      Frame.speed=Frame.speed*1.1
-      #puts "Unknown key #{id}"
+      @frame.speed=@frame.speed*1.1
     end
   end
 end
 
-ChipmunkIntegration.new.show
+frame = Frame.new
+GravityConf = GravityConfig.parse_file frame,   ARGV.first || 'config.yml'
+pp GravityConf.bodies.size
+
+ChipmunkIntegration.new(frame).show
