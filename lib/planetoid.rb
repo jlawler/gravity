@@ -18,19 +18,19 @@ class Planetoid
      
     dist_in_au #* (1.496 * 10**11)
   end
-  def add_gravity_from(x)
+  def add_gravity_from(x, timescale)
    # STDERR.puts "V MAG #{Frame.mag_of_vector(self.vel)}"
    #puts "DIST TO %0.02f" % self.dist_to(x)
 
-    force =  ((self.mass * x.mass) * G_IN_AU_PER_KG_D2)/((self.dist_to(x)**2)*self.mass)
+    force =  timescale * ((self.mass * x.mass) * G_IN_AU_PER_KG_D2)/((self.dist_to(x)**2)*self.mass)
     dir = Frame.normalize_vec Frame.sub_vectors(x.pos, self.pos)
     self.vel = Frame.add_vectors self.vel, dir.map{|comp|comp*force} 
 
   end
-  def update_pos(amount_of_frame)
+  def update_pos(timescale)
     #STDERR.puts 'update_pos'
     (0..2).to_a.each{|i|
-      self.pos[i] += (self.vel[i]*amount_of_frame)
+      self.pos[i] += (self.vel[i]*timescale)
     }
     #pp self.pos
   end

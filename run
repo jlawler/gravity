@@ -11,11 +11,11 @@ require 'frame'
 require 'planetoid'
 require 'config_parser'
 
-GravityConf = GravityConfigParser.parse_file  'config.yml'
+GravityConf = GravityConfigParser.parse_file  ARGV.first || 'config.yml'
 
 
-SUN=GravityConf['sun']
-EARTH=GravityConf['earth']
+SUN=GravityConf.bodies['sun']
+EARTH=GravityConf.bodies['earth']
 =begin
 SUN = Planetoid.new(
   mass: 1.989*(10**30),
@@ -45,13 +45,18 @@ class ChipmunkIntegration < ( Gosu::Window)
   end
   def draw
     $frame +=1
-    EARTH.add_gravity_from(SUN)
-    EARTH.update_pos 1 # 0.01
-    STDERR.puts "V #{EARTH.vel}"
-    STDERR.puts "V MAG #{Frame.mag_of_vector(EARTH.vel)}"
+    timescale = 0.5 #0.1 
+    EARTH.add_gravity_from(SUN, timescale)
+    SUN.add_gravity_from(EARTH, timescale)
+    EARTH.update_pos timescale
+    SUN.update_pos timescale
+    STDERR.puts SUN.dist_to EARTH
+    #STDERR.puts "SUN POS #{SUN.pos}"
+    #STDERR.puts "V #{EARTH.vel}"
+    #STDERR.puts "V MAG #{Frame.mag_of_vector(EARTH.vel)}"
     SUN.draw
     EARTH.draw
-    puts $frame if $frame%100 == 0
+    puts $frame if $frame%10 == 0
 		#draw_circle(0, 0, 200)
     #@img.draw 0, 0, 0
   end
