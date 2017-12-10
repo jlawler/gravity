@@ -29,10 +29,11 @@ class ChipmunkIntegration < ( Gosu::Window)
     #@img = Gosu::Image.new(self, Circle.new(50, 255, 0, 0), false)
   end
   def draw
-    @font.draw("T: #{Frame.frame}    Z:%2.02f "% Frame.zoom, 10, 10, 1, 1.0, 1.0, 0xff_ffff00)
+    @font.draw("T: %2.02f  F%04i    Z:%2.02f " % [Frame.time, Frame.frame,  Frame.zoom], 10, 10, 1, 1.0, 1.0, 0xff_ffff00)
     unless GravityConf.paused
       Frame.frame += 1
-      timescale = 10 #0.25 #0.1 
+      Frame.time += Frame.speed
+      timescale = Frame.speed #0.25 #0.1 
       EARTH.add_gravity_from(SUN, timescale)
       SUN.add_gravity_from(EARTH, timescale)
       EARTH.update_pos timescale
@@ -59,7 +60,10 @@ class ChipmunkIntegration < ( Gosu::Window)
       #puts Frame.zoom
     elsif id==Gosu::KB_SPACE
       GravityConf.paused = !GravityConf.paused  
-    else
+    elsif id==Gosu::KB_MINUS
+      Frame.speed=Frame.speed/1.1
+    elsif id==Gosu::KB_EQUALS
+      Frame.speed=Frame.speed*1.1
       #puts "Unknown key #{id}"
     end
   end

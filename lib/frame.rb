@@ -1,6 +1,6 @@
 class Frame
 	class <<self
-		attr_accessor :width, :height, :window, :width_au, :height_au, :frame, :zoom
+		attr_accessor :width, :height, :window, :width_au, :height_au, :frame, :zoom, :speed, :time
   end
 
   def self.zoom=x
@@ -11,6 +11,8 @@ class Frame
 
 
 end
+Frame.time = 0
+Frame.speed = 1
 Frame.frame = 0
 Frame.height = 480
 Frame.width = 640
