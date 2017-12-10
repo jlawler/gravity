@@ -1,0 +1,147 @@
+#!/usr/bin/env ruby
+require 'pp'
+require 'rubygems'
+require 'gosu'
+require 'chipmunk'
+
+
+WIDTH = 640
+HEIGHT = 480
+
+
+
+class Circle
+  attr_reader :columns, :rows
+  
+  def initialize(radius, colorR, colorG, colorB)
+    @columns = @rows = radius * 2
+    lower_half = (0...radius).map do |y|
+      x = Math.sqrt(radius**2 - y**2).round
+      right_half = "#{"#{colorR.chr}" * x}#{"#{0.chr}" * (radius - x)}"
+      "#{right_half.reverse}#{right_half}"
+    end.join
+    blob0 = lower_half.reverse + lower_half
+    blob0.gsub!(/./) { |alpha| "#{colorR.chr}#{colorG.chr}#{colorB.chr}#{alpha}"}
+    lower_half = (0...radius).map do |y|
+      x = Math.sqrt(radius**2 - y**2).round
+      right_half = "#{"#{colorG.chr}" * x}#{"#{0.chr}" * (radius - x)}"
+      "#{right_half.reverse}#{right_half}"
+    end.join
+    blob1 = lower_half.reverse + lower_half
+    blob1.gsub!(/./) { |alpha| "#{colorR.chr}#{colorG.chr}#{colorB.chr}#{alpha}"}
+    lower_half = (0...radius).map do |y|
+      x = Math.sqrt(radius**2 - y**2).round
+      right_half = "#{"#{colorB.chr}" * x}#{"#{0.chr}" * (radius - x)}"
+      "#{right_half.reverse}#{right_half}"
+    end.join
+    blob2 = lower_half.reverse + lower_half
+    blob2.gsub!(/./) { |alpha| "#{colorR.chr}#{colorG.chr}#{colorB.chr}#{alpha}"}
+    if colorB > 0
+      @blob = blob2
+    elsif colorG > 0
+      @blob = blob1
+    else
+      @blob = blob0
+    end
+  end
+  
+  def to_blob
+    @blob
+  end
+end
+
+class Frame
+	class <<self
+		attr_accessor :width, :height, :window, :width_au, :height_au
+  end
+end 
+Frame.height = 480
+Frame.width = 640
+Frame.width_au = 2.66666666
+Frame.height_au = 2.0
+
+
+class Planetoid
+  G = 6.693*(10**-11)
+  attr_accessor :mass, :pos, :vel, :radius, :color
+  def initialize h={}
+    self.mass = h[:mass]
+    self.pos = h[:pos]
+    self.vel = h[:vel]
+    self.radius = h[:radius]||50
+    self.color = h[:color] || [255, 0, 0]
+  end
+  def img
+    @img||= Gosu::Image.new(Frame.window, Circle.new(self.radius, self.color[0], self.color[1], self.color[2]), false)
+  end
+  def dist_to x
+    dist_in_au = (0..2).to_a.map do |i|
+      (self.pos[i]-x.pos[i])**2
+    end.inject(0){|h,e|h+e}**0.5
+
+    dist_in_au * (1.496 * 10**11)
+  end
+  def add_gravity_from(x)
+    puts "DIST TO %0.02f" % self.dist_to(x)
+    puts  ((self.mass * x.mass) * G)/self.dist_to(x)
+
+  end
+  def update_pos(amount_of_frame)
+    STDERR.puts 'update_pos'
+    (0..2).to_a.each{|i|
+      self.pos[i] += (self.vel[i]*amount_of_frame)
+    }
+    pp self.pos
+  end
+	def draw
+    x =  
+      (((Frame.width_au*1.0/2) + self.pos[0])*Frame.width / Frame.width_au) - self.radius
+    y = 
+      (((Frame.height_au*1.0/2) + self.pos[1])*Frame.height / Frame.height_au) - self.radius
+
+    self.img.draw(
+      x,
+      y,
+      self.pos[2] ) 
+
+  end
+  
+end
+
+SUN=Planetoid.new(
+  mass: 1.989*(10**30),
+  pos: [0,0,0],
+  vel: [0,0,0],
+  radius: 25
+)
+
+
+EARTH=Planetoid.new(
+  mass: 5.972 * (10**24),
+  pos: [0.186, 0.9615,0.000155],
+  vel: [0.5,0,0],
+  radius: 5,
+  color: [0, 0, 255]
+)
+
+
+
+class ChipmunkIntegration < ( Gosu::Window)
+  def initialize
+    super Frame.width, Frame.height
+    self.caption = "Gosu & Chipmunk Integration Demo"
+    Frame.window = self
+
+    #@img = Gosu::Image.new(self, Circle.new(50, 255, 0, 0), false)
+  end
+  def draw
+    EARTH.add_gravity_from(SUN)
+    EARTH.update_pos 0.01
+    SUN.draw
+    EARTH.draw
+		#draw_circle(0, 0, 200)
+    #@img.draw 0, 0, 0
+  end
+end
+
+ChipmunkIntegration.new.show
