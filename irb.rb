@@ -2,22 +2,11 @@ require 'rubygems'
 require 'gosu'
 require 'chipmunk'
 
+$:.unshift './lib'
 
-
-
-class Planetoid
-  attr_accessor :mass, :pos, :vel
-  def initialize h={}
-    self.mass = h[:mass]
-    self.pos = h[:pos]
-    self.vel = h[:vel]
-  end
-end
-
-SUN=Planetoid.new(
-  mass: 1.989*(10**30),
-  pos: [0,0,0],
-  vel: [0,0,0]
-)
+require 'config_parser'
+require 'gosu_circle'
+require 'constants'
+require 'frame'
 
 
