@@ -9,5 +9,13 @@ G is m^3 kg^-1 s^-2
 
 Cryptic format in config.yml is the format NASA uses in their horizens API.
 
-look in the sources folder
+look in the sources folder to see what I mean.
+
+
+
+TODO:
+
+I need to decouple render from calculation.  I also want to do some tests on how much different time intervals vary the output.
+
+
 
