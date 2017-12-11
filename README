@@ -7,3 +7,7 @@ VX VY VZ is in AU/Day
 G is m^3 kg^-1 s^-2
 
 
+Cryptic format in config.yml is the format NASA uses in their horizens API.
+
+look in the sources folder
+

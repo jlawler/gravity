@@ -2,7 +2,6 @@
 require 'pp'
 require 'rubygems'
 require 'gosu'
-require 'chipmunk'
 
 $:.unshift "./lib"
 require 'gosu_circle'
@@ -10,7 +9,7 @@ require 'frame'
 require 'planetoid'
 require 'config_parser'
 
-class ChipmunkIntegration < ( Gosu::Window)
+class Gravity < ( Gosu::Window)
   def initialize frame
     @frame = frame 
     super @frame.width, @frame.height
@@ -31,6 +30,7 @@ class ChipmunkIntegration < ( Gosu::Window)
         end
       end
       GravityConf.bodies.each{|e|e.update_pos }
+      #STDERR.puts GravityConf.bodies.select{|e|e.name=='sun'}.first.pos
       #STDERR.puts SUN.dist_to EARTH  if @frame.frame%10 == 0
       #STDERR.puts "SUN POS #{SUN.pos}"
       #STDERR.puts "V #{EARTH.vel}"
@@ -62,4 +62,4 @@ frame = Frame.new
 GravityConf = GravityConfig.parse_file frame,   ARGV.first || 'config.yml'
 pp GravityConf.bodies.size
 
-ChipmunkIntegration.new(frame).show
+Gravity.new(frame).show
