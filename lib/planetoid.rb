@@ -26,7 +26,7 @@ class Planetoid
     self.vel = self.vel + self.queued_acc
     self.queued_acc = nil 
   end
-  def update_pos time
+  def update_pos time=nil
     process_queue
     self.pos = self.pos + (self.vel*frame.speed)
   end
