@@ -23,6 +23,7 @@ class Planetoid
     self.queued_acc = self.queued_acc + (dir*force)
   end
   def process_queue
+    STDERR.puts "acccel on this body is " + self.queued_acc.inspect
     self.vel = self.vel + self.queued_acc
     self.queued_acc = nil 
   end

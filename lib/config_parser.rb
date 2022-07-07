@@ -21,8 +21,9 @@ class GravityConfig
     pos_line, vel_line = *h['position'].split(/\n/)
     ret[:pos] = Vector[*pos_line.split(/\s+/).map{|i|parse_sci_notation(i)}]
     ret[:vel] = Vector[*vel_line.split(/\s+/).map{|i|parse_sci_notation(i)}]
-    %w(radius color).each{|i|
-      ret[i.to_sym] = h[i] if h[i]
+    ret[:radius] = h['radius'] if h['radius']
+    %w(color).each{|i|
+      ret[i.to_sym] = h[i].map(&:to_i) if h[i]
     }
     Planetoid.new ret, frame 
   end
